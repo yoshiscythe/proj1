@@ -8,64 +8,93 @@ def quaternion(axis, angle):
 	return [i*math.sin(angle/2) for i in axis]+[math.cos(angle/2)]
 	
 #グリッパの開閉距離
-grip_open = 0.10	
-grip_close = 0.04
+grip_open = 0.075	
+grip_close = 0.055
 
 #カップを持つ姿勢
-axis = [1.0, 0.0, 0.0]
-angle = -math.pi/2
-quaternion_cup = quaternion(axis, angle)
+#axis = [1.0, 0.0, 0.0]
+#angle = -math.pi/2
+#quaternion_cup = quaternion(axis, angle)
+quaternion_cup = [-0.5, 0.5, 0.5, 0.5]
 
 #手先からグリッパの中心までの距離
 distance_to_gripper = 0.1
 
 #カップのつかむ高さz
-catch_height = [0.05]
+catch_height = 0.07
 
 #つかむ時のマージン
-catch_margin = 0.1	
+catch_margin = 0.05	
+
+#
+table_height = 0.12
 
 #（moveq 1）と同じ位置姿勢
-q_init = [-0.02225494707637879, 0.027604753814144237, 0.02256845844164128, -2.2001560115435073, -0.00047772651727832574, 0.6569580325147487, 0.0010119170182285682]
+q_init1 = [-0.022, 0.027, 0.022, -2.200, -0.0004, 0.656, 0.001]
+
+#original init (pi/2 from moveq 1)
+q_init2 = [2.300, 0.037, -0.741, -2.200, 0.019, 0.657, -0.040]
 	
 def start_goal(ct, start, goal):
 	x1 = copy.deepcopy(start[:3])+quaternion_cup
-	x1[2] += catch_height[0]
 	
+	x1[2] = 0.5
 	x1[1] -= catch_margin
-	ct.robot.MoveToX(x1, 2.0, blocking=True)
+	rospy.sleep(1.0)
+	ct.robot.MoveToXI(x1, 5.0, blocking=True)
+	
+	x1[2] = copy.deepcopy(start[2])+catch_height
+	rospy.sleep(1.0)
+	ct.robot.MoveToXI(x1, 5.0, blocking=True)
 	x1[1] += catch_margin
+	ct.robot.MoveGripper(float(grip_open))
+	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 2.0, blocking=True)
 	
 	#つかむ
+	rospy.sleep(1.0)
 	ct.robot.MoveGripper(float(grip_close))
 	
-	x1[2] += 0.5
-	ct.robot.MoveToXI(x1, 2.0, blocking=True)	
+	x1[2] = 0.5
+	rospy.sleep(1.0)
+	ct.robot.MoveToXI(x1, 5.0, blocking=True)
+	
 	x1[:2] = copy.deepcopy(goal[:2])
-	ct.robot.MoveToXI(x1, 2.0, blocking=True)
-	x1[2] = goal[2] + catch_height[0]
-	ct.robot.MoveToXI(x1, 2.0, blocking=True)
+	rospy.sleep(1.0)
+	ct.robot.MoveToXI(x1, 3.0, blocking=True)
+	x1[2] = copy.deepcopy(goal[2]) + catch_height
+	rospy.sleep(1.0)
+	ct.robot.MoveToXI(x1, 5.0, blocking=True)
 	
 	#はなす
+	rospy.sleep(1.0)
 	ct.robot.MoveGripper(float(grip_open))	
 	
 	x1[1] -= catch_margin
+	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 2.0, blocking=True)
 	
-	x1[2] +=0.5
+	x1[2] =0.5
+	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 2.0, blocking=True)
 def Run(ct,*args):
-	cup_start =  [[ 0.45, 0.45, 0.0],
-	 							[ 0.35, 0.45, 0.0],
-	 							[ 0.25, 0.45, 0.0]]
+	cup_start =  [[ 0.35, 0.45, 0.0+table_height],
+		      [ 0.27, 0.45, 0.0+table_height],
+		      [ 0.19, 0.45, 0.0+table_height]]
  							
-	cup_goal =   [[-0.25, 0.45, 0.0],
-								[-0.35, 0.45, 0.0],
-								[-0.30, 0.45, 0.10]]
+	cup_goal =   [[-0.25, 0.45, 0.0+table_height],
+		      [-0.17, 0.45, 0.0+table_height],
+		      [-0.21, 0.45, 0.10+table_height]]
 	
-							
+	rospy.sleep(1.0)
+	ct.robot.MoveToQ(q_init1, 5.0, blocking=True)	#初期化	
+	ct.robot.MoveGripper(float(grip_open))
+	
 	for i in range(len(cup_start)):
-		ct.robot.MoveToQ(q_init, 2.0, blocking=True)	#初期化	
-		start_goal(ct, cup_start[i], cup_goal[i])
-	ct.robot.MoveToQ(q_init, 2.0, blocking=True)	#初期化
+		rospy.sleep(1.0)
+		ct.robot.MoveToQ(q_init2, 3.0, blocking=True)	#初期化	
+		ct.robot.MoveGripper(float(grip_open))
+		start_goal(ct, cup_start[i], cup_goal[i])	
+	
+	rospy.sleep(1.0)
+	ct.robot.MoveToQ(q_init1, 5.0, blocking=True)	#初期化

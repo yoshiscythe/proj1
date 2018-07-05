@@ -13,52 +13,72 @@ def Run(ct,*args):
 	
 	grip_open = 0.10
 	
-	grip_close = 0.04
+	grip_close = 0.055
 	
 	#手先からグリッパの中心までの距離
 	distance_to_gripper = 0.1
 	
 	#カップのつかむ高さz
-	catch_height = [0.1]
+	catch_height = 0.07
+	
+	#table_height
+	table_height = 0.12
 	
 	#カップのある位置(x,y,z)口の中心
-	x_cup = [0.45, 0.45, 0.0]
+	x_cup = [0.35, 0.45, 0.0+table_height]
 	
 	#カップを置きたい位置(x,y,z)
-	x_goal = [-0.45, 0.45, 0.0]
+	x_goal = [-0.45, 0.45, 0.0+table_height]
 	
 	#カップを持つ姿勢
-	axis = [1.0, 0.0, 0.0]
-	angle = -math.pi/2
-	quaternion_cup = quaternion(axis, angle)
+	#axis = [1.0, 0.0, 0.0]
+	#angle = -math.pi/2
+	#quaternion_cup = quaternion(axis, angle)
+	quaternion_cup = [-0.5, 0.5, 0.5, 0.5]
 	
 	#print x_cup+quaternion_cup
 	
-	ct.robot.MoveToQ(q_init, 2.0, blocking=True)	#初期化
+	ct.robot.MoveToQ(q_init, 10, blocking=True)	#初期化
+	ct.robot.OpenGripper()
 	
-	x1 = copy.deepcopy(x_cup)+catch_height+quaternion_cup
-	x1[1] -= 0.1
-	ct.robot.MoveToX(x1, 2.0, blocking=True)
-	x1[1] += 0.1
-	ct.robot.MoveToX(x1, 2.0, blocking=True)
+	x1 = copy.deepcopy(x_cup[:3])+quaternion_cup
 	
-	ct.robot.MoveGripper(float(grip_close))
+	x1[2] = 0.5
+	x1[1] -= 0.05
+	print '1',x1
+	ct.robot.MoveToX(x1, 16.0, blocking=True)
+	rospy.sleep(1.0)
 	
-	x1[2] += 0.5
-	ct.robot.MoveToX(x1, 2.0, blocking=True)
+	x1[2] = copy.deepcopy(x_cup[2])+catch_height
+	print '2',x1
+	ct.robot.MoveToXI(x1, 9.0, blocking=True)
+	rospy.sleep(1.0)
 	
-	x1[:2] = x_goal
-	ct.robot.MoveToXI(x1, 2.0, blocking=True)			#ct.robot.MoveToXI（ｘ，ｄｔ，） 間を直線で補間してくれるinum=　　で引数渡してやると補間点数が可変
+	x1[1] += 0.05
+	print '3',x1
+	ct.robot.MoveToXI(x1, 5.0, blocking=True)
+	rospy.sleep(1.0)
 	
-	x1[2] = 0.1
-	#print x1
-	ct.robot.MoveToX(x1, 2.0, blocking=True)
+	#ct.robot.MoveGripper(float(grip_close))
+	#rospy.sleep(1.0)
 	
-	x1[1] -= 0.1
-	ct.robot.MoveToX(x1, 2.0, blocking=True)
+	#x1[2] = 0.5
+	#print '4',x1
+	#ct.robot.MoveToXI(x1, 10.0, blocking=True)
+	#rospy.sleep(1.0)
 	
-	ct.robot.MoveGripper(float(grip_open))
+	#x1[:2] = x_goal[:2]
+	#ct.robot.MoveToXI(x1, 5.0, blocking=True)			#ct.robot.MoveToXI（ｘ，ｄｔ，） 間を直線で補間してくれるinum=　　で引数渡してやると補間点数が可変
 	
-	ct.robot.MoveToQ(q_init, 2.0, blocking=True)	#初期化
+	#x1[2] = 0.1
+	##print x1
+	#ct.robot.MoveToX(x1, 5.0, blocking=True)
+	
+	#x1[1] -= 0.1
+	#ct.robot.MoveToX(x1, 5.0, blocking=True)
+	
+	#ct.robot.MoveGripper(float(grip_open))
+	
+	#ct.robot.MoveToQ(q_init, 5.0, blocking=True)	#初期化
 	
 	
