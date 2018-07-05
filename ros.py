@@ -4,6 +4,7 @@ from core_tool import *
 def Help():
   return '''First script.
   Usage: template'''
+
 def Run(ct,*args):
   #print len(args)
   #print args[0]
