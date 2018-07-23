@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-             #日本語を書くためのおまじない
 from core_tool import *
 import tower_make
+import start_tower
 def Help():													#-helpをつけてやると呼び出せる
   return '''First script.
   Usage: template'''
@@ -10,7 +11,7 @@ def quaternion(axis, angle):
 	
 #グリッパの開閉距離
 grip_open = 0.075	
-grip_close = 0.055
+grip_close = 0.058
 
 #カップを持つ姿勢
 #axis = [1.0, 0.0, 0.0]
@@ -28,7 +29,7 @@ catch_height = 0.07
 catch_margin = 0.05	
 
 #
-table_height = 0.12
+table_height = 0.15
 
 #（moveq 1）と同じ位置姿勢
 q_init1 = [-0.022, 0.027, 0.022, -2.200, -0.0004, 0.656, 0.001]
@@ -39,7 +40,7 @@ q_init2 = [2.300, 0.037, -0.741, -2.200, 0.019, 0.657, -0.040]
 def start_goal(ct, start, goal):
 	x1 = copy.deepcopy(start[:3])+quaternion_cup
 	
-	x1[2] = 0.5
+	x1[2] = 0.6
 	x1[1] -= catch_margin
 	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 5.0, blocking=True)
@@ -56,15 +57,24 @@ def start_goal(ct, start, goal):
 	rospy.sleep(1.0)
 	ct.robot.MoveGripper(float(grip_close))
 	
-	x1[2] = 0.5
+	x1[2] = 0.40
 	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 5.0, blocking=True)
+	
+	x1[2] = 0.50
+	rospy.sleep(1.0)
+	ct.robot.MoveToXI(x1, 0.5, blocking=True)
+	
+	x1[2] = 0.60
+	rospy.sleep(1.0)
+	ct.robot.MoveToXI(x1, 2.0, blocking=True)
 	
 	x1[:2] = copy.deepcopy(goal[:2])
 	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 3.0, blocking=True)
 	x1[2] = copy.deepcopy(goal[2]) + catch_height
-	rospy.sleep(1.0)
+	#print x1
+	rospy.sleep(3.0)
 	ct.robot.MoveToXI(x1, 5.0, blocking=True)
 	
 	#はなす
@@ -75,17 +85,17 @@ def start_goal(ct, start, goal):
 	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 2.0, blocking=True)
 	
-	x1[2] =0.5
+	x1[2] =0.6
 	rospy.sleep(1.0)
-	ct.robot.MoveToXI(x1, 2.0, blocking=True)
+	ct.robot.MoveToXI(x1, 3.0, blocking=True)
+	
 def Run(ct,*args):
-        stage = 2
-  
-	cup_start =  [[ 0.35, 0.45, 0.0+table_height],
-		      [ 0.27, 0.45, 0.0+table_height],
-		      [ 0.19, 0.45, 0.0+table_height]]
+        stage = 4
+	
+	cup_location = [0.35, 0.55, 0.0+table_height]
+	cup_start =  start_tower.start_tower(cup_location, stage)
  	
- 	cup_goal_set = [-0.40, 0.45, 0.0+table_height]
+ 	cup_goal_set = [-0.32, 0.55, 0.0+table_height]
 	cup_goal = tower_make.tower_make(cup_goal_set, stage)
 	
 	rospy.sleep(1.0)
@@ -93,7 +103,7 @@ def Run(ct,*args):
 	ct.robot.MoveGripper(float(grip_open))
 	
 	for i in range(len(cup_start)):
-		rospy.sleep(1.0)
+		rospy.sleep(3.0)
 		ct.robot.MoveToQ(q_init2, 3.0, blocking=True)	#初期化	
 		ct.robot.MoveGripper(float(grip_open))
 		start_goal(ct, cup_start[i], cup_goal[i])	
