@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-             #日本語を書くためのおまじない
 from core_tool import *
+import tower_make
 def Help():													#-helpをつけてやると呼び出せる
   return '''First script.
   Usage: template'''
@@ -78,13 +79,14 @@ def start_goal(ct, start, goal):
 	rospy.sleep(1.0)
 	ct.robot.MoveToXI(x1, 2.0, blocking=True)
 def Run(ct,*args):
+        stage = 2
+  
 	cup_start =  [[ 0.35, 0.45, 0.0+table_height],
 		      [ 0.27, 0.45, 0.0+table_height],
 		      [ 0.19, 0.45, 0.0+table_height]]
- 							
-	cup_goal =   [[-0.25, 0.45, 0.0+table_height],
-		      [-0.17, 0.45, 0.0+table_height],
-		      [-0.21, 0.45, 0.10+table_height]]
+ 	
+ 	cup_goal_set = [-0.40, 0.45, 0.0+table_height]
+	cup_goal = tower_make.tower_make(cup_goal_set, stage)
 	
 	rospy.sleep(1.0)
 	ct.robot.MoveToQ(q_init1, 5.0, blocking=True)	#初期化	
