@@ -20,7 +20,7 @@ def start_tower(cup_location, stage):
 
 
 def Run(ct,*arg):
-  print start_tower([0,0,0.22], 3)
+  print start_tower([0,0,0.22], 4)
   
 if __name__ == "__main__":
   print start_tower([0,0,0.22], 2)

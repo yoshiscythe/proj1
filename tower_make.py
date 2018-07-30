@@ -11,7 +11,7 @@ def tower_make(cup_goal_set, stage):
   return cup_list
 
 def Run(ct,*args):
-  print (tower_make([-0.24, 0.45, 0.0], 2))
+  print (tower_make([-0.25, 0.55, 0.15], 3))
 
 if __name__ == "__main__":
   print (tower_make(0, 0, 0, 3))

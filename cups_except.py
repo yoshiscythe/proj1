@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-             #日本語を書くためのおまじない
 from core_tool import *
 import tower_make
+import start_tower
 import math
 def Help():													#-helpをつけてやると呼び出せる
   return '''First script.
@@ -11,7 +12,7 @@ def quaternion(axis, angle):
 	
 #グリッパの開閉距離
 grip_open = 0.075	
-grip_close = 0.055
+grip_close = 0.058
 
 #カップを持つ姿勢
 #axis = [1.0, 0.0, 0.0]
@@ -29,7 +30,7 @@ catch_height = 0.07
 catch_margin = 0.05	
 
 #
-table_height = 0.12
+table_height = 0.15
 
 #（moveq 1）と同じ位置姿勢
 q_init1 = [-0.022, 0.027, 0.022, -2.200, -0.0004, 0.656, 0.001]
@@ -39,7 +40,7 @@ q_init2 = [2.300, 0.037, -0.741, -2.200, 0.019, 0.657, -0.040]
 
 
 def arm_speed(ct, next_pos):
-  speed = 0.10
+  speed = 0.05
   current_pos = list(ct.robot.FK())
   distance = 0
   
@@ -172,12 +173,11 @@ def start_goal(ct, start, goal):
             
 def Run(ct,*args):
         stage = 2
-  
-	cup_start =  [[ 0.35, 0.45, 0.0+table_height],
-		      [ 0.27, 0.45, 0.0+table_height],
-		      [ 0.19, 0.45, 0.0+table_height]]
+	
+	cup_location = [0.30, 0.55, 0.0+table_height]
+	cup_start =  start_tower.start_tower(cup_location, stage)
  	
- 	cup_goal_set = [-0.40, 0.45, 0.0+table_height]
+ 	cup_goal_set = [-0.32, 0.55, 0.0+table_height]
 	cup_goal = tower_make.tower_make(cup_goal_set, stage)
 	
 	rospy.sleep(1.0)
