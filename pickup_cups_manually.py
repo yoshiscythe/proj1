@@ -27,7 +27,7 @@ distance_to_gripper = 0.1
 catch_height = 0.07
 
 #つかむ時のマージン
-catch_margin = 0.05	
+catch_margin = 0.10	
 
 #
 table_height = 0.15
@@ -119,7 +119,7 @@ def start_goal(ct, start, goal):
 	#print x1
 	#rospy.sleep(3.0)
 	sleep(ct)
-	ct.robot.MoveToXI(x1, 1.5*arm_speed(ct, x1), blocking=True, acc_phase = 1)
+	ct.robot.MoveToXI(x1, 1.5*arm_speed(ct, x1), blocking=True)
 	
 	print 5
 	#はなす
@@ -144,25 +144,26 @@ def start_goal(ct, start, goal):
 	
 def Run(ct,*args):
 	time_start = time.time()
-        stage = 3
+        stage = 2
 	
 	cup_location = [0.30, 0.55, 0.0+table_height]
 	cup_start =  start_tower.start_tower(cup_location, stage)
  	
- 	cup_goal_set = [-0.25, 0.55, 0.0+table_height]
+ 	cup_goal_set = [-0.35, 0.45, 0.0+table_height]
 	cup_goal = tower_make.tower_make(cup_goal_set, stage)
 	
 	#rospy.sleep(1.0)
-	#sleep(ct)
-	#ct.robot.MoveToQ(q_init1, 5.0, blocking=True)	#初期化	
+	sleep(ct)
+	ct.robot.MoveToQ(q_init2, 8.0, blocking=True)	#初期化	
 	ct.robot.MoveGripper(float(grip_open))
 	
 	for i in range(len(cup_start)):
 		print 'sequence:', i+1
-		#rospy.sleep(3.0)
-		sleep(ct)
-		print 'a'
-		ct.robot.MoveToQ(q_init2, 1.5*arm_speed(ct, list(ct.robot.FK(q_init2))), blocking=True)	#初期化	
+		if i != 0:
+		  #rospy.sleep(3.0)
+		  sleep(ct)
+		  print 'a'
+		  ct.robot.MoveToQ(q_init2, 1.5*arm_speed(ct, list(ct.robot.FK(q_init2))), blocking=True)	#初期化	
 		print 'b'
 		ct.robot.MoveGripper(float(grip_open))
 		print 'c'
