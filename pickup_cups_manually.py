@@ -144,7 +144,7 @@ def start_goal(ct, start, goal):
 	
 def Run(ct,*args):
 	time_start = time.time()
-        stage = 2
+        stage = 3
 	
 	cup_location = [0.30, 0.55, 0.0+table_height]
 	cup_start =  start_tower.start_tower(cup_location, stage)
