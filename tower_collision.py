@@ -43,7 +43,7 @@ def Run(ct,*args):
 		for i in range(len(cup_locate)):
 			x_box= cup_locate[i]+[0.0, 0.0, 0.0, 1.0]
 			x_box[1] += 0.20
-			box_dim= [0.08,0.08,0.096]
+			box_dim= [0.07,0.07,0.096]
 			#Add a box to the planning scene
 			box_attr={
 					'x': x_box,
@@ -169,7 +169,7 @@ def Run(ct,*args):
 		sleep()
 		ct.robot.MoveToXI(x1, arm_speed(x1), blocking=True)
 	"""
-	def collision_move(start, goal):
+	def collision_move(start, goal, i):
 		#Move to the target with planning a collision free path:
 		xc = copy.deepcopy(start)
 		xc += quaternion_cup
@@ -182,24 +182,33 @@ def Run(ct,*args):
 		sleep()
 		ct.robot.MoveToXI(xc, arm_speed(xc), blocking=True)
 		
+		#Virtually grasp the object
+		ct.Run('scene','grab',arm,'box'+str(i))
 		ct.robot.MoveGripper(float(grip_close))
 		
-		xc[2] += 0.10
+		xc[2] += 0.12
 		sleep()
-		ct.robot.MoveToXI(xc, arm_speed(xc), blocking=True)
+		ct.robot.MoveToXI(xc, 2.0, blocking=True)
 		
+		print 'margin yet'
 		xc = copy.deepcopy(goal)
-		xc= xc + quaternion_cup
-		xc[2] += 0.05
+		xc += quaternion_cup
+		xc[2] += 0.12
+		print '1', xc
 		dt= arm_speed(xc)  #Duration
 		conservative= False  #Ask Yes/No before moving
 		ct.Run('adv.move_to_x', xc, dt, lw_xe, arm, {}, conservative)
 		
-		xc[2] -= 0.05
+		print 'margin ?'
+		xc[2] -= 0.12
+		print '2', xc
 		sleep()
 		ct.robot.MoveToXI(xc, arm_speed(xc), blocking=True)
+		print 'margin ok'
 		
 		ct.robot.MoveGripper(float(grip_open))
+		#Virtually release the object
+		ct.Run('scene','release','box'+str(i))
 		
 		xc[1] -= catch_margin
 		sleep()
@@ -210,7 +219,7 @@ def Run(ct,*args):
 	
 	print 8
 	time_start = time.time()
-        stage = 2
+        stage = 3
 	
 	cup_location = [0.30, 0.55, 0.0+table_height]
 	cup_start =  start_tower.start_tower(cup_location, stage)
@@ -228,7 +237,7 @@ def Run(ct,*args):
 	print 'end'
 	
 	for i in range(len(cup_start)):
-		collision_move(cup_start[i], cup_goal[i])
+		collision_move(cup_start[i], cup_goal[i], i)
 	
 	
 	"""

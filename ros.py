@@ -7,7 +7,7 @@ def Help():
 
 def Run(ct,*args):
   #print len(args)
-  #print args[0]
+  #print args
   #q = list(ct.robot.Q())            #ct.robot.Q()関節角を取得、タプルになっていて変更できないのでlist()でくくる
   #print q
   #q[3] += 0.2
@@ -16,34 +16,38 @@ def Run(ct,*args):
   
   #x = list(ct.robot.FK())     #手先の座標取得   
   #print x
-  #x[0] += 0.1
-  #print x
+  #x[0] += 0.1  #print x
   #ct.robot.MoveToX(x, 2.0)              #手先を動かす（座標、時間）
+  """
+  x = list(ct.robot.FK())     #手先の座標取得
+  print x
+  for i in range(2):
+  	x1 = copy.deepcopy(x)
+  	x1[0] += 0.1
+  	ct.robot.MoveToX(x1, 2.0, blocking = True)              #手先を動かす（座標、時間）
+  	x1[0] -= 0.1
+  	ct.robot.MoveToX(x1, 2.0, blocking = False)              #手先を動かす（座標、時間）
+  """
+  """
+  q = list(ct.robot.Q())
+  q_traj = []
+  t_traj = []
+  q_traj.append(q)
+  t_traj.append(0.0)
+  for i in range(1, 20):
+    t_traj.append(0.1*i)
+    q2 = copy.deepcopy(q)
+    q2[2] += 0.5*math.sin(10.0*0.1*i) 
+    q_traj.append(q2)
+  print t_traj
+  print q_traj
+  ct.robot.FollowQTraj(q_traj, t_traj)
+  """
   
-  #x = list(ct.robot.FK())     #手先の座標取得   
-  #print x
-  #for i in range(10):
-    #x[0] += 0.1
-    #ct.robot.MoveToX(x, 2.0, blocking=Ture)              #手先を動かす（座標、時間）
-    #x[0] -= 0.1
-    #ct.robot.MoveToX(x, 2.0, blocking=Ture)              #手先を動かす（座標、時間）
-    
-  #q = list(ct.robot.Q())
-  #q_traj = []
-  #t_traj = []
-  #q_traj.append(q)
-  #t_traj.append(0.0)
-  #for i in range(1, 20):
-    #t_traj.append(0.1*i)
-    #q2 = copy.deepcopy(q)
-    #q2[2] += 0.5*math.sin(10.0*0.1*i) 
-    #q_traj.append(q2)
-  #print t_traj
-  #print q_traj
-  #ct.robot.FollowQTraj(q_traj, t_traj)
+  
   
   #手先が円を描く
-  r = 0.1
+  r = 0.05
   x = list(ct.robot.FK())
   x1 = copy.deepcopy(x)
   x1[1] -= r
@@ -57,9 +61,11 @@ def Run(ct,*args):
     x2 = copy.deepcopy(x)
     x2[1] += -r*math.cos(3.0*0.1*i)
     x2[2] += r*math.sin(3.0*0.1*i) 
+    x2[0] += 0.003*i
     x_traj.append(x2)
   print t_traj
   print x_traj
   ct.robot.FollowXTraj(x_traj, t_traj)
+  
     
   
